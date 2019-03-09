@@ -566,7 +566,7 @@ Meteor.methods({forgotPassword: options => {
     email => email.toLowerCase() === options.email.toLowerCase()
   );
 
-  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail);
+  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+this.connection.httpHeaders.host)});
 }});
 
 /**
@@ -735,7 +735,7 @@ Accounts.generateOptionsForEmail = (email, user, url, reason) => {
 Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'resetPassword', extraTokenData);
-  const url = Accounts.urls.resetPassword(token);
+  const url = Accounts.urls.resetPassword(token,extraTokenData ? extraTokenData.rootUrl : undefined);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'resetPassword');
   Email.send(options);
   return {email: realEmail, user, token, url, options};
@@ -761,7 +761,7 @@ Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
 Accounts.sendEnrollmentEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'enrollAccount', extraTokenData);
-  const url = Accounts.urls.enrollAccount(token);
+  const url = Accounts.urls.enrollAccount(token,extraTokenData ? extraTokenData.rootUrl : undefined);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'enrollAccount');
   Email.send(options);
   return {email: realEmail, user, token, url, options};
@@ -870,7 +870,7 @@ Accounts.sendVerificationEmail = (userId, email, extraTokenData) => {
 
   const {email: realEmail, user, token} =
     Accounts.generateVerificationToken(userId, email, extraTokenData);
-  const url = Accounts.urls.verifyEmail(token);
+  const url = Accounts.urls.verifyEmail(token, extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'verifyEmail');
   Email.send(options);
   return {email: realEmail, user, token, url, options};
@@ -1116,7 +1116,7 @@ Meteor.methods({createUser: function (...args) {
       // a token to verify the user's primary email, and send it to
       // that address.
       if (options.email && Accounts._options.sendVerificationEmail)
-        Accounts.sendVerificationEmail(userId, options.email);
+        Accounts.sendVerificationEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
 
       // client gets logged in as the new user afterwards.
       return {userId: userId};

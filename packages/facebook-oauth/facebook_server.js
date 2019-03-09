@@ -52,12 +52,17 @@ const getTokenResponse = query => {
 
   let responseContent;
   try {
+    var absoluteUrlOptions;
+    var rootUrl = OAuth._stateFromQuery(query).rootUrl;
+    if (rootUrl) {
+      absoluteUrlOptions = {rootUrl: rootUrl};
+    }
     // Request an access token
     responseContent = HTTP.get(
       "https://graph.facebook.com/v3.0/oauth/access_token", {
         params: {
           client_id: config.appId,
-          redirect_uri: OAuth._redirectUri('facebook', config),
+          redirect_uri: OAuth._redirectUri('facebook', config, undefined, absoluteUrlOptions),
           client_secret: OAuth.openSecret(config.secret),
           code: query.code
         }

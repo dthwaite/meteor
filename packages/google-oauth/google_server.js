@@ -92,12 +92,17 @@ const getTokens = query => {
 
   let response;
   try {
+    var absoluteUrlOptions;
+    var rootUrl = OAuth._stateFromQuery(query).rootUrl;
+    if (rootUrl) {
+      absoluteUrlOptions = {rootUrl: rootUrl};
+    }
     response = HTTP.post(
       "https://accounts.google.com/o/oauth2/token", {params: {
         code: query.code,
         client_id: config.clientId,
         client_secret: OAuth.openSecret(config.secret),
-        redirect_uri: OAuth._redirectUri('google', config),
+        redirect_uri: OAuth._redirectUri('google', config, undefined, absoluteUrlOptions),
         grant_type: 'authorization_code'
       }});
   } catch (err) {

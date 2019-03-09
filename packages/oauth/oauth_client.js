@@ -42,6 +42,7 @@ OAuth._stateParam = (loginStyle, credentialToken, redirectUrl) => {
   const state = {
     loginStyle,
     credentialToken,
+    rootUrl: Meteor.absoluteUrl.defaultOptions.rootUrl,
     isCordova: Meteor.isCordova
   };
 
