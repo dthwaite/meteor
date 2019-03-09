@@ -553,7 +553,7 @@ const pluckAddresses = (emails = []) => emails.map(email => email.address);
 
 // Method called by a user to request a password reset email. This is
 // the start of the reset process.
-Meteor.methods({forgotPassword: options => {
+Meteor.methods({forgotPassword: function(options) {
   check(options, {email: String});
 
   const user = Accounts.findUserByEmail(options.email);
@@ -566,7 +566,7 @@ Meteor.methods({forgotPassword: options => {
     email => email.toLowerCase() === options.email.toLowerCase()
   );
 
-  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+this.connection.httpHeaders.host)});
+  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail, {rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+this.connection.httpHeaders.host)});
 }});
 
 /**
