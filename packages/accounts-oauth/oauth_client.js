@@ -72,8 +72,9 @@ Meteor.startup(() => {
 // nothing should happen.
 Accounts.oauth.tryLoginAfterPopupClosed = (credentialToken, callback) => {
   const credentialSecret = OAuth._retrieveCredentialSecret(credentialToken) || null;
+  const routeName=FlowRouter.current().route.name;
   Accounts.callLoginMethod({
-    methodArguments: [{oauth: { credentialToken, credentialSecret }}],
+    methodArguments: [{oauth: { credentialToken, credentialSecret, routeName }}],
     userCallback: callback && (err => callback(convertError(err))),
     });
 };
