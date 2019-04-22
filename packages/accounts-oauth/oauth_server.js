@@ -53,7 +53,7 @@ Accounts.registerLoginHandler(options => {
                  `No registered oauth service found for: ${result.serviceName}`) };
 
     }
-    if (options.oauth.routeName=='signin') {
+    if (options.oauth.routeName=='signin' && result.serviceData.email) {
       if (!Accounts.findUserByEmail(result.serviceData.email)) {
         return {
           type: "oauth",
