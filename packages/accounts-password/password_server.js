@@ -963,7 +963,7 @@ Accounts.addEmail = (userId, newEmail, verified) => {
   const caseInsensitiveRegExp =
     new RegExp(`^${Meteor._escapeRegExp(newEmail)}$`, 'i');
 
-  const didUpdateOwnEmail = user.emails.reduce(
+  const didUpdateOwnEmail = user.emails ? user.emails.reduce(
     (prev, email) => {
       if (caseInsensitiveRegExp.test(email.address)) {
         Meteor.users.update({
@@ -979,7 +979,7 @@ Accounts.addEmail = (userId, newEmail, verified) => {
       }
     }, 
     false
-  );
+  ) : false;
 
   // In the other updates below, we have to do another call to
   // checkForCaseInsensitiveDuplicates to make sure that no conflicting values
