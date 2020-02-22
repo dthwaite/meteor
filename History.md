@@ -1,6 +1,95 @@
-## v.NEXT
+## v1.9.2, 2020-02-20
+
+### Breaking changes
+N/A
+
+### Migration Steps
+N/A
+
+### Changes
+
+* Node.js has been updated to version
+  [12.16.1](https://nodejs.org/en/blog/release/v12.16.1/), fixing several
+  unintended
+  [regressions](https://github.com/nodejs/node/blob/master/doc/changelogs/CHANGELOG_V12.md#12.16.1)
+  introduced in 12.16.0.
+
+* The `meteor-babel` npm package has been updated to version 7.8.2.
+
+* The `typescript` npm package has been updated to version 3.7.5.
+
+## v1.9.1, 2020-02-18
+
+### Breaking changes
+
+N/A
+
+### Migration Steps
+N/A
+
+### Changes
+
+* Node.js has been updated to version
+  12.16.0 from 12.14.0, which includes
+  security updates and small changes:
+  * [12.16.0](https://nodejs.org/en/blog/release/v12.16.0/)
+    * Updated V8 to [release v7.8](https://v8.dev/blog/v8-release-78) which includes improvements in performance, for example, object destructuring now is as fast as the equivalent variable assignment.
+  * [12.15.0](https://nodejs.org/en/blog/release/v12.15.0/)
+
+## v1.9, 2020-01-09
+
+### Breaking changes
+
+* Because Node.js 12 no longer supports 32-bit Linux, Meteor 1.9 has also
+  dropped support for 32-bit Linux. In other words, Meteor 1.9 supports
+  64-bit Mac, Windows, and Linux, as well as 32-bit Windows.
+
+### Migration Steps
+N/A
+
+### Changes
+
+* Node.js has been updated to version
+  [12.14.0](https://nodejs.org/en/blog/release/v12.14.0/), which includes
+  several major Node.js versions since 8.17.0 (used by Meteor 1.8.3):
+  * [12.0.0](https://nodejs.org/en/blog/release/v12.0.0/)
+  * [11.0.0](https://nodejs.org/en/blog/release/v10.0.0/)
+  * [10.0.0](https://nodejs.org/en/blog/release/v10.0.0/)
+  * [9.0.0](https://nodejs.org/en/blog/release/v9.0.0/)
+
+* The `fibers` npm package has been updated to version 4.0.3, which
+  includes [changes](https://github.com/laverdet/node-fibers/pull/429)
+  that may drastically reduce garbage collection pressure resulting from
+  heavy `Fiber` usage.
+
+* The `pathwatcher` npm package has been updated to use a fork of version
+  8.0.2, with [PR #128](https://github.com/atom/node-pathwatcher/pull/128)
+  applied.
+
+* The `sqlite3` npm package has been updated to version 4.1.0.
+
+* The `node-gyp` npm package has been updated to version 6.0.1, and
+  `node-pre-gyp` has been updated to version 0.14.0.
+
+* The feature that restarts the application up to two times if it crashes
+  on startup has been removed.
+  [Feature #335](https://github.com/meteor/meteor-feature-requests/issues/335)
+  [PR #10345](https://github.com/meteor/meteor/pull/10345)
 
 ## v1.8.3, 2019-12-19
+
+### Migration Steps
+
+* If your application uses `blaze-html-templates`, the Meteor `jquery`
+  package will be automatically installed in your `.meteor/packages` file
+  when you update to Meteor 1.8.3. However, this new version of the Meteor
+  `jquery` package no longer bundles its own copy of the `jquery` npm
+  implementation, so you may need to install `jquery` from npm by running
+  ```sh
+  meteor npm i jquery
+  ```
+  in your application directory. Symptoms of not installing jquery include
+  a blank browser window, with helpful error messages in the console.
 
 ### Changes
 
