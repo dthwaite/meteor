@@ -52,9 +52,11 @@ const getTokenResponse = query => {
   let responseContent;
   try {
     var absoluteUrlOptions;
-    var rootUrl = OAuth._stateFromQuery(query).rootUrl;
-    if (rootUrl) {
-      absoluteUrlOptions = {rootUrl: rootUrl};
+    if (query.state) {
+      var rootUrl = OAuth._stateFromQuery(query).rootUrl;
+      if (rootUrl) {
+        absoluteUrlOptions = {rootUrl: rootUrl};
+      }
     }
     // Request an access token
     responseContent = HTTP.get(
