@@ -37,6 +37,18 @@ export class AccountsServer extends AccountsCommon {
       loggedInUser: ['profile', 'username', 'emails'],
       otherUsers: ['profile', 'username']
     };
+
+    // use object to keep the reference when used in functions
+    // where _defaultPublishFields is destructured into lexical scope
+    // for publish callbacks that need `this`
+    this._defaultPublishFields = {
+      projection: {
+        profile: 1,
+        username: 1,
+        emails: 1,
+      }
+    };
+
     this._initServerPublications();
 
     // connectionId -> {connection, loginToken}
@@ -71,9 +83,9 @@ export class AccountsServer extends AccountsCommon {
       resetPassword: token => Meteor.absoluteUrl(`#/reset-password/${token}`),
       verifyEmail: token => Meteor.absoluteUrl(`#/verify-email/${token}`),
       enrollAccount: token => Meteor.absoluteUrl(`#/enroll-account/${token}`),
-    }
+    };
 
-    this.addDefaultRateLimit()
+    this.addDefaultRateLimit();
   }
 
   ///
@@ -115,6 +127,19 @@ export class AccountsServer extends AccountsCommon {
    */
   validateNewUser(func) {
     this._validateNewUserHooks.push(func);
+  }
+
+  /**
+   * @summary Validate login from external service
+   * @locus Server
+   * @param {Function} func Called whenever login/user creation from external service is attempted. Login or user creation based on this login can be aborted by passing a falsy value or throwing an exception.
+   */
+  beforeExternalLogin(func) {
+    if (this._beforeExternalLoginHook) {
+      throw new Error("Can only call beforeExternalLogin once");
+    }
+
+    this._beforeExternalLoginHook = func;
   }
 
   ///
@@ -678,7 +703,7 @@ export class AccountsServer extends AccountsCommon {
 
   _initServerPublications() {
     // Bring into lexical scope for publish callbacks that need `this`
-    const { users, _autopublishFields } = this;
+    const { users, _autopublishFields, _defaultPublishFields } = this;
 
     // Publish all login service configuration fields other than secret.
     this._server.publish("meteor.loginServiceConfiguration", () => {
@@ -686,22 +711,22 @@ export class AccountsServer extends AccountsCommon {
       return ServiceConfiguration.configurations.find({}, {fields: {secret: 0}});
     }, {is_auto: true}); // not techincally autopublish, but stops the warning.
 
-    // Publish the current user's record to the client.
-    this._server.publish(null, function () {
-      if (this.userId) {
-        return users.find({
-          _id: this.userId
-        }, {
-          fields: {
-            profile: 1,
-            username: 1,
-            emails: 1
-          }
-        });
-      } else {
-        return null;
-      }
-    }, /*suppress autopublish warning*/{is_auto: true});
+    // Use Meteor.startup to give other packages a chance to call
+    // setDefaultPublishFields.
+    Meteor.startup(() => {
+      // Publish the current user's record to the client.
+      this._server.publish(null, function () {
+        if (this.userId) {
+          return users.find({
+            _id: this.userId
+          }, {
+            fields: _defaultPublishFields.projection,
+          });
+        } else {
+          return null;
+        }
+      }, /*suppress autopublish warning*/{is_auto: true});
+    });
 
     // Use Meteor.startup to give other packages a chance to call
     // addAutopublishFields.
@@ -747,6 +772,14 @@ export class AccountsServer extends AccountsCommon {
       this._autopublishFields.loggedInUser, opts.forLoggedInUser);
     this._autopublishFields.otherUsers.push.apply(
       this._autopublishFields.otherUsers, opts.forOtherUsers);
+  };
+
+  // Replaces the fields to be automatically
+  // published when the user logs in
+  //
+  // @param {MongoFieldSpecifier} fields Dictionary of fields to return or exclude.
+  setDefaultPublishFields(fields) {
+    this._defaultPublishFields.projection = fields;
   };
 
   ///
@@ -1210,6 +1243,11 @@ export class AccountsServer extends AccountsCommon {
     }
 
     let user = this.users.findOne(selector, {fields: this._options.defaultFieldSelector});
+
+    // Before continuing, run user hook to see if we should continue
+    if (this._beforeExternalLoginHook && !this._beforeExternalLoginHook(serviceName, serviceData, user)) {
+      throw new Meteor.Error(403, "Login forbidden");
+    }
 
     // When creating a new user we pass through all options. When updating an
     // existing user, by default we only process/pass through the serviceData

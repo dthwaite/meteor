@@ -74,7 +74,7 @@ const getRoundsFromBcryptHash = hash => {
 // `password.digest`).
 //
 // The user parameter needs at least user._id and user.services
-Accounts._checkPasswordUserFields = {_id: 1, services: 1},
+Accounts._checkPasswordUserFields = {_id: 1, services: 1};
 //
 Accounts._checkPassword = (user, password) => {
   const result = {
@@ -766,9 +766,12 @@ Accounts.generateOptionsForEmail = (email, user, url, reason) => {
 Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'resetPassword', extraTokenData);
-  const url = Accounts.urls.resetPassword(token,extraTokenData ? extraTokenData.rootUrl : undefined);
+  const url = Accounts.urls.resetPassword(token);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'resetPassword');
   Email.send(options);
+  if (Meteor.isDevelopment) {
+    console.log(`\nReset password URL: ${url}`);
+  }
   return {email: realEmail, user, token, url, options};
 };
 
@@ -792,9 +795,12 @@ Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
 Accounts.sendEnrollmentEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'enrollAccount', extraTokenData);
-  const url = Accounts.urls.enrollAccount(token,extraTokenData ? extraTokenData.rootUrl : undefined);
+  const url = Accounts.urls.enrollAccount(token);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'enrollAccount');
   Email.send(options);
+  if (Meteor.isDevelopment) {
+    console.log(`\nEnrollment email URL: ${url}`);
+  }
   return {email: realEmail, user, token, url, options};
 };
 
@@ -906,9 +912,12 @@ Accounts.sendVerificationEmail = (userId, email, extraTokenData) => {
 
   const {email: realEmail, user, token} =
     Accounts.generateVerificationToken(userId, email, extraTokenData);
-  const url = Accounts.urls.verifyEmail(token, extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
+  const url = Accounts.urls.verifyEmail(token);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'verifyEmail');
   Email.send(options);
+  if (Meteor.isDevelopment) {
+    console.log(`\nVerification email URL: ${url}`);
+  }
   return {email: realEmail, user, token, url, options};
 };
 
@@ -1146,24 +1155,41 @@ Meteor.methods({createUser: function (...args) {
           error: new Meteor.Error(403, "Signups forbidden")
         };
 
-      // Create user. result contains id and token.
-      const userId = createUser(options);
-      // safety belt. createUser is supposed to throw on error. send 500 error
-      // instead of sending a verification email with empty userid.
-      if (! userId)
-        throw new Error("createUser failed to insert new user");
-
-      // If `Accounts._options.sendVerificationEmail` is set, register
-      // a token to verify the user's primary email, and send it to
-      // that address.
-      if (options.email && Accounts._options.sendVerificationEmail)
-        Accounts.sendVerificationEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
+      const userId = Accounts.createUserVerifyingEmail(options);
 
       // client gets logged in as the new user afterwards.
       return {userId: userId};
     }
   );
 }});
+
+// Create user directly on the server.
+//
+// Differently from Accounts.createUser(), this evaluates the Accounts package
+// configurations and send a verification email if the user has been registered
+// successfully.
+Accounts.createUserVerifyingEmail = (options) => {
+  options = { ...options };
+  // Create user. result contains id and token.
+  const userId = createUser(options);
+  // safety belt. createUser is supposed to throw on error. send 500 error
+  // instead of sending a verification email with empty userid.
+  if (! userId)
+    throw new Error("createUser failed to insert new user");
+
+  // If `Accounts._options.sendVerificationEmail` is set, register
+  // a token to verify the user's primary email, and send it to
+  // that address.
+  if (options.email && Accounts._options.sendVerificationEmail) {
+    if (options.password) {
+      Accounts.sendVerificationEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
+    } else {
+      Accounts.sendEnrollmentEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
+    }
+  }
+
+  return userId;
+};
 
 // Create user directly on the server.
 //
