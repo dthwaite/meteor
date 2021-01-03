@@ -1154,8 +1154,7 @@ Meteor.methods({createUser: function (...args) {
         return {
           error: new Meteor.Error(403, "Signups forbidden")
         };
-
-      const userId = Accounts.createUserVerifyingEmail(options);
+      const userId = Accounts.createUserVerifyingEmail(options,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+this.connection.httpHeaders.host)});
 
       // client gets logged in as the new user afterwards.
       return {userId: userId};
@@ -1168,7 +1167,7 @@ Meteor.methods({createUser: function (...args) {
 // Differently from Accounts.createUser(), this evaluates the Accounts package
 // configurations and send a verification email if the user has been registered
 // successfully.
-Accounts.createUserVerifyingEmail = (options) => {
+Accounts.createUserVerifyingEmail = (options,extraTokenData) => {
   options = { ...options };
   // Create user. result contains id and token.
   const userId = createUser(options);
@@ -1182,9 +1181,9 @@ Accounts.createUserVerifyingEmail = (options) => {
   // that address.
   if (options.email && Accounts._options.sendVerificationEmail) {
     if (options.password) {
-      Accounts.sendVerificationEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
+      Accounts.sendVerificationEmail(userId, options.email,extraTokenData);
     } else {
-      Accounts.sendEnrollmentEmail(userId, options.email,{rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+self.connection.httpHeaders.host)});
+      Accounts.sendEnrollmentEmail(userId, options.email,extraTokenData);
     }
   }
 
