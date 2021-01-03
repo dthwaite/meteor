@@ -93,9 +93,11 @@ const getTokens = query => {
   let response;
   try {
     var absoluteUrlOptions;
-    var rootUrl = OAuth._stateFromQuery(query).rootUrl;
-    if (rootUrl) {
-      absoluteUrlOptions = {rootUrl: rootUrl};
+    if (query.state) {
+      var rootUrl = OAuth._stateFromQuery(query).rootUrl;
+      if (rootUrl) {
+        absoluteUrlOptions = {rootUrl: rootUrl};
+      }
     }
     response = HTTP.post(
       "https://accounts.google.com/o/oauth2/token", {params: {

@@ -52,13 +52,15 @@ const getTokenResponse = query => {
   let responseContent;
   try {
     var absoluteUrlOptions;
-    var rootUrl = OAuth._stateFromQuery(query).rootUrl;
-    if (rootUrl) {
-      absoluteUrlOptions = {rootUrl: rootUrl};
+    if (query.state) {
+      var rootUrl = OAuth._stateFromQuery(query).rootUrl;
+      if (rootUrl) {
+        absoluteUrlOptions = {rootUrl: rootUrl};
+      }
     }
     // Request an access token
     responseContent = HTTP.get(
-      "https://graph.facebook.com/v3.0/oauth/access_token", {
+      "https://graph.facebook.com/v5.0/oauth/access_token", {
         params: {
           client_id: config.appId,
           redirect_uri: OAuth._redirectUri('facebook', config, undefined, absoluteUrlOptions),
@@ -97,7 +99,7 @@ const getIdentity = (accessToken, fields) => {
   hmac.update(accessToken);
 
   try {
-    return HTTP.get("https://graph.facebook.com/v3.0/me", {
+    return HTTP.get("https://graph.facebook.com/v5.0/me", {
       params: {
         access_token: accessToken,
         appsecret_proof: hmac.digest('hex'),
