@@ -766,7 +766,7 @@ Accounts.generateOptionsForEmail = (email, user, url, reason) => {
 Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'resetPassword', extraTokenData);
-  const url = Accounts.urls.resetPassword(token);
+  const url = Accounts.urls.resetPassword(token,extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'resetPassword');
   Email.send(options);
   if (Meteor.isDevelopment) {
@@ -795,7 +795,7 @@ Accounts.sendResetPasswordEmail = (userId, email, extraTokenData) => {
 Accounts.sendEnrollmentEmail = (userId, email, extraTokenData) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'enrollAccount', extraTokenData);
-  const url = Accounts.urls.enrollAccount(token);
+  const url = Accounts.urls.enrollAccount(token,extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'enrollAccount');
   Email.send(options);
   if (Meteor.isDevelopment) {
@@ -912,7 +912,7 @@ Accounts.sendVerificationEmail = (userId, email, extraTokenData) => {
 
   const {email: realEmail, user, token} =
     Accounts.generateVerificationToken(userId, email, extraTokenData);
-  const url = Accounts.urls.verifyEmail(token);
+  const url = Accounts.urls.verifyEmail(token, extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'verifyEmail');
   Email.send(options);
   if (Meteor.isDevelopment) {
