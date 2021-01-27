@@ -1209,7 +1209,8 @@ export class AccountsServer extends AccountsCommon {
   updateOrCreateUserFromExternalService(
     serviceName,
     serviceData,
-    options
+    options,
+    routeName
   ) {
     options = { ...options };
 
@@ -1243,10 +1244,16 @@ export class AccountsServer extends AccountsCommon {
     }
 
     let user = this.users.findOne(selector, {fields: this._options.defaultFieldSelector});
+    if (!user && serviceData.email) user=Accounts.findUserByEmail(serviceData.email);
 
     // Before continuing, run user hook to see if we should continue
     if (this._beforeExternalLoginHook && !this._beforeExternalLoginHook(serviceName, serviceData, user)) {
       throw new Meteor.Error(403, "Login forbidden");
+    }
+
+    // Before continuing, we deny user creation if the route name was sign in
+    if (routeName==='signin' && !user) {
+      throw new Meteor.Error(403, "No matching user found");
     }
 
     // When creating a new user we pass through all options. When updating an

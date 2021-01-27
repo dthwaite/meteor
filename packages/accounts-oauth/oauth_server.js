@@ -54,15 +54,7 @@ Accounts.registerLoginHandler(options => {
 
     }
     if (result.serviceData.email) {
-      if (options.oauth.routeName == 'signin') {
-        if (!Accounts.findUserByEmail(result.serviceData.email)) {
-          return {
-            type: "oauth",
-            error: new Meteor.Error(403, "No matching user found")
-          };
-        }
-      }
-      return Accounts.updateOrCreateUserFromExternalService(result.serviceName, result.serviceData, result.options);
+      return Accounts.updateOrCreateUserFromExternalService(result.serviceName, result.serviceData, result.options, options.oauth.routeName);
     } else return {
       type: "oauth",
       error: new Meteor.Error(403, "No matching user found (no email)")
