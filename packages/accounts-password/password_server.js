@@ -790,6 +790,7 @@ Accounts.sendResetPasswordEmail = (userId, email, extraTokenData, extraParams) =
  * @param {String} userId The id of the user to send email to.
  * @param {String} [email] Optional. Which address of the user's to send the email to. This address must be in the user's `emails` list. Defaults to the first email in the list.
  * @param {Object} [extraTokenData] Optional additional data to be added into the token record.
+ * @param {Object} [extraParams] Optional additional params to be added to the enrollment url.
  * @returns {Object} Object with {email, user, token, url, options} values.
  * @importFromPackage accounts-base
  */
