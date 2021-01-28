@@ -121,6 +121,7 @@ OAuth.launchLogin = options => {
       options.popupOptions);
   } else if (options.loginStyle === 'redirect') {
     OAuth.saveDataForRedirect(options.loginService, options.credentialToken);
+    AccountsTemplates.setDisabled(false);
     window.location = options.loginUrl;
   } else {
     throw new Error('invalid login style');
