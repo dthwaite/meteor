@@ -1209,8 +1209,7 @@ export class AccountsServer extends AccountsCommon {
   updateOrCreateUserFromExternalService(
     serviceName,
     serviceData,
-    options,
-    routeName
+    options
   ) {
     options = { ...options };
 
@@ -1252,7 +1251,7 @@ export class AccountsServer extends AccountsCommon {
     }
 
     // Before continuing, we deny user creation if the route name was sign in
-    if (routeName==='signin' && !user) {
+    if (options.noCreate && !user) {
       throw new Meteor.Error(403, "No matching user found");
     }
 

@@ -63,8 +63,8 @@ OAuth._stateParam = (loginStyle, credentialToken, redirectUrl) => {
 // the login service, save the credential token for this login attempt
 // in the reload migration data.
 //
-OAuth.saveDataForRedirect = (loginService, credentialToken) => {
-  Reload._onMigrate('oauth', () => [true, { loginService, credentialToken }]);
+OAuth.saveDataForRedirect = (loginService, credentialToken, noCreate) => {
+  Reload._onMigrate('oauth', () => [true, { loginService, credentialToken, noCreate }]);
   Reload._migrate(null, {immediateMigration: true});
 };
 
@@ -95,6 +95,7 @@ OAuth.getDataAfterRedirect = () => {
     loginService: migrationData.loginService,
     credentialToken,
     credentialSecret,
+    noCreate: migrationData.noCreate
   };
 };
 
@@ -120,7 +121,7 @@ OAuth.launchLogin = options => {
       options.credentialRequestCompleteCallback.bind(null, options.credentialToken),
       options.popupOptions);
   } else if (options.loginStyle === 'redirect') {
-    OAuth.saveDataForRedirect(options.loginService, options.credentialToken);
+    OAuth.saveDataForRedirect(options.loginService, options.credentialToken,FlowRouter.current().route.name!=='signup');
     AccountsTemplates.setDisabled(false);
     window.location = options.loginUrl;
   } else {

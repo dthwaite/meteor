@@ -66,7 +66,7 @@ Accounts.registerLoginHandler(request => {
   }
 
   const result = getServiceDataFromTokens(tokens);
-
+  result.options.noCreate=request.noCreate;
   return Accounts.updateOrCreateUserFromExternalService("google", {
     id: request.userId,
     idToken: request.idToken,
