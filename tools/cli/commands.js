@@ -514,7 +514,8 @@ const AVAILABLE_SKELETONS = [
   "minimal",
   DEFAULT_SKELETON,
   "typescript",
-  "vue"
+  "vue",
+  "svelte"
 ];
 
 main.registerCommand({
@@ -532,6 +533,7 @@ main.registerCommand({
     vue: { type: Boolean },
     typescript: { type: Boolean },
     apollo: { type: Boolean },
+    svelte: { type: Boolean },
   },
   catalogRefresh: new catalog.Refresh.Never()
 }, function (options) {
@@ -901,6 +903,7 @@ main.registerCommand({
     cmd("meteor create --react      # to create a basic React-based app");
     cmd("meteor create --vue        # to create a basic Vue-based app");
     cmd("meteor create --apollo     # to create a basic Apollo + React app");
+    cmd("meteor create --svelte     # to create a basic Svelte app");
     cmd("meteor create --typescript # to create an app using TypeScript and React");
     cmd("meteor create --blaze      # to create an app using Blaze");
   }
@@ -1433,6 +1436,7 @@ main.registerCommand({
     'no-wait': { type: Boolean },
     'cache-build': { type: Boolean },
     free: { type: Boolean },
+    plan: { type: String },
     mongo: { type: Boolean }
   },
   allowUnrecognizedOptions: true,
@@ -1506,6 +1510,10 @@ function deployCommand(options, { rawOptions }) {
   if (options['deploy-polling-timeout']) {
     deployPollingTimeoutMs = options['deploy-polling-timeout'];
   }
+  let plan = null;
+  if (options.plan) {
+    plan = options.plan;
+  }
 
   const isCacheBuildEnabled = !!options['cache-build'];
   const waitForDeploy = !options['no-wait'];
@@ -1517,6 +1525,7 @@ function deployCommand(options, { rawOptions }) {
     free: options.free,
     mongo: options.mongo,
     buildOptions: buildOptions,
+    plan,
     rawOptions,
     deployPollingTimeoutMs,
     waitForDeploy,
@@ -2295,6 +2304,12 @@ main.registerCommand({
     'with-tag': { type: String },
     junit: { type: String },
     retries: { type: Number, default: 2 },
+    // Skip tests, after filter
+    skip: { type: Number },
+    // Limit tests, after filter
+    limit: { type: Number },
+    // Don't run tests, just show the plan after filter, skip and limit
+    preview: { type: Boolean },
   },
   hidden: true,
   catalogRefresh: new catalog.Refresh.Never()
@@ -2396,7 +2411,10 @@ main.registerCommand({
     clients: clients,
     junit: options.junit && files.pathResolve(options.junit),
     'without-tag': options['without-tag'],
-    'with-tag': options['with-tag']
+    'with-tag': options['with-tag'],
+    skip: options.skip,
+    limit: options.limit,
+    preview: options.preview,
   });
 
 });

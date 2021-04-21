@@ -1,3 +1,104 @@
+## v2.2, 2021-04-15
+
+#### Highlights
+
+- MongoDB Update to 4.4.4
+- Cordova Update to 10
+- Typescript Update to 4.2.2
+- New skeleton: `meteor create myapp --svelte`
+
+### Breaking changes
+
+* N/A
+
+### Migration steps
+
+* `meteor-tool` maybe you need to install the new Visual C++ Redistributable for Visual Studio 2019 to run MongoDB 4.4.4 on Windows. [read more](https://docs.meteor.com/windows.html)
+
+* `mongo` package is now using useUnifiedTopology as `true` by default otherwise the new driver was producing a warning (see details below). It's important to test your app with this change.
+
+* `cordova` plugins and main libraries were updated from 9 to 10. It's important to test your app with these changes.
+
+* `typescript` was updated to 4.2.2, make sure your read the [breaking changes](https://devblogs.microsoft.com/typescript/announcing-typescript-4-2/#breaking-changes).
+
+#### Meteor Version Release
+
+* `meteor-tool@2.2`
+  - Update embedded MongoDB version to 4.4.4 [#11341](https://github.com/meteor/meteor/pull/11341)
+    - Maybe you need to install the new Visual C++ Redistributable for Visual Studio 2019 to run on Windows. [read more](https://docs.meteor.com/windows.html)
+  - Fix WindowsLikeFilesystem true when release string includes case insensitive word microsoft. [#11321](https://github.com/meteor/meteor/pull/11321)
+  - Fix absoluteFilePath on Windows. [#11346](https://github.com/meteor/meteor/pull/11346)
+  - New skeleton: `meteor create myapp --svelte`
+  - Update Blaze skeleton to use HMR
+
+* `npm-mongo@3.9.0`
+  - Update MongoDB driver version to 3.6.6
+
+* `mongo@1.11.0`
+  - Using useUnifiedTopology as `true` by default to avoid the warning: `(node:59240) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor. You can still use it as false with `Mongo._connectionOptions` or `Meteor.settings?.packages?.mongo?.options`.
+
+* `cordova@10`
+  - Update Cordova to 10.0.0 [#11208](https://github.com/meteor/meteor/pull/11208)
+
+* `typescript@4.2.2`
+  - Update Typescript to 4.2.2, make sure your read the [breaking changes](https://devblogs.microsoft.com/typescript/announcing-typescript-4-2/#breaking-changes) [#11329](https://github.com/meteor/meteor/pull/11329)
+
+* `accounts-base@1.9.0`
+  - Allow to set token expiration to be set in milliseconds. [#11366](https://github.com/meteor/meteor/pull/11366)
+
+* `facebook-oauth@1.9.0`
+  - Upgrade default Facebook API to v10 & allow overriding this value. [#11362](https://github.com/meteor/meteor/pull/11362)
+
+* `minimongo@1.6.2`
+  - Add [$mul](https://docs.mongodb.com/manual/reference/operator/update/mul/#up._S_mul) to minimongo. [#11364](https://github.com/meteor/meteor/pull/11364)
+
+* `webapp@1.10.1`
+  - Fix for UNIX sockets with node cluster. [#11369](https://github.com/meteor/meteor/pull/11369)
+
+## v2.1.1, 2021-04-06
+
+### Changes
+
+#### Highlights
+
+- Node.js security [update](https://nodejs.org/en/blog/vulnerability/april-2021-security-releases/) to 12.22.1
+
+#### Meteor Version Release
+
+* `meteor-tool@2.1.1`
+  - Node.js security [update](https://nodejs.org/en/blog/vulnerability/april-2021-security-releases/) to 12.22.1
+  - npm update to 6.14.12
+  
+### Breaking changes
+
+* N/A
+
+### Migration steps
+
+* N/A
+
+## v2.1, 2021-02-24
+
+### Changes
+
+#### Highlights
+
+- Node.js security [update](https://nodejs.org/en/blog/vulnerability/february-2021-security-releases/) to 12.21.0
+
+#### Meteor Version Release
+
+* `meteor-tool@2.1`
+  - Node.js security [update](https://nodejs.org/en/blog/vulnerability/february-2021-security-releases/) to 12.21.0
+  - `meteor create my-app --plan professional` new flag `plan` to enable you to choose a plan from the deploy command.
+  
+### Breaking changes
+
+* N/A
+
+### Migration steps
+
+* N/A
+
 ## v2.0, 2021-01-20
 
 ### Changes
@@ -10,7 +111,7 @@
 - Deploy including MongoDB on [Cloud](https://www.meteor.com/cloud): Deploy including MongoDB in a shared instance for free to Cloud with one command: `meteor deploy myapp.meteorapp.com --free --mongo`. ([docs](https://docs.meteor.com/commandline.html#meteordeploy))
   
 
-- Hot Module Replacement (HMR): Updates the javascript modules in a running app that were modified during a rebuild. Reduces the feedback cycle while developing so you can view and test changes quicker (it even updates the app before the build has finished). Enabled by adding the `hot-module-replacement` package to an app. React components are automatically updated by default using React Fast Refresh. Integrations with other libraries and view layers can be provided by third party packages. Support for Blaze is coming soon. This first version supports app code in the modern web architecture. ([docs](https://docs.meteor.com/packages/hot-module-replacement.html)) [#11117](https://github.com/meteor/meteor/pull/11117)
+- Hot Module Replacement (HMR): Updates the javascript modules in a running app that were modified during a rebuild. Reduces the feedback cycle while developing so you can view and test changes quicker (it even updates the app before the build has finished). Enabled by adding the `hot-module-replacement` package to an app. React components are automatically updated by default using React Fast Refresh. Integrations with other libraries and view layers can be provided by third party packages. Support for Blaze is coming soon. This first version supports app code in the modern web architecture. ([docs](https://guide.meteor.com/build-tool.html#hot-module-replacement)) [#11117](https://github.com/meteor/meteor/pull/11117)
 
 #### Meteor Version Release
 
@@ -24,23 +125,33 @@
   - `cordova` ensures the pathname of the rootUrl is used in the mobile URL. [#11053](hhttps://github.com/meteor/meteor/pull/11053)
   - Add `file.hmrAvailable()` for compiler plugins to check if a file meets the minimum requirements to be updated with HMR [#11117](https://github.com/meteor/meteor/pull/11117)
 
+
 * `hot-module-replacement@1.0.0`
   - New package that enables Hot Module Replacement for the Meteor app and provides an API to configure how updates are applied. HMR reduces the feedback cycle while developing by updating modified javascript modules within the running application. ([docs](https://docs.meteor.com/packages/hot-module-replacement.html)) [#11117](https://github.com/meteor/meteor/pull/11117)
   - These packages have been updated to support HMR: `autoupdate@1.7.0`, `babel-compiler@7.6.0`, `ddp-client@2.4.0`, `dynamic-import@0.6.0`, `ecmascript@0.15.0`, `modules@0.16.0`, `modules-runtime-hot@0.13.0`, `standard-minifier-css@1.7.2`, `webapp@1.10.0`, `webapp-hashing@1.1.0` 
   
+
 * `react-fast-refresh@0.1.0`
   - New package that updates React components using HMR. This is enabled by default in apps that have HMR enabled and use a supported React version. ([docs](https://atmospherejs.com/meteor/react-fast-refresh)) [#11117](https://github.com/meteor/meteor/pull/11117)
   
-* `dev-error-overly@0.1.0`
+
+* `dev-error-overlay@0.1.0`
   - New package that allows you to see build errors and server crashes in your browser during development. Requires the app to have HMR enabled. [#11117](https://github.com/meteor/meteor/pull/11117)
+
 
 * `accounts-base@1.8.0` and `accounts-password@1.7.0`
   - Extra parameters can now be added to reset password, verify e-mail and enroll account links that are generated for account e-mails. By default, these are added as search parameters to the generated url. You can pass them as an object in the appropriate functions. E.g. `Accounts.sendEnrollmentEmail(userId, email, null, extraParams);`. [#11288](https://github.com/meteor/meteor/pull/11288)
     
+
 * `logging@1.2.0`
   - Updates dependencies and make debug available for use in non production environments. [#11068](https://github.com/meteor/meteor/pull/11068)
 
 #### Independent Releases
+* `react-meteor-data@2.2.0`
+  - Fix issue with useTracker and Subscriptions when using deps. [#306](https://github.com/meteor/react-packages/pull/306)
+  - Remove version constraint on core TypeScript package [#308](https://github.com/meteor/react-packages/pull/308)
+  
+
 * `http`
     - It has been deprecated. [#11068](https://github.com/meteor/meteor/pull/11068)
 
@@ -50,7 +161,9 @@
 
 ### Migration steps
 
-N/A
+Simple run `meteor update` in your app.
+
+Great new features and no breaking changes (except one package deprecation). You can always check our [Roadmap](./Roadmap.md) to understand what is next.
 
 ## v1.12.1, 2021-01-06
 
