@@ -17,7 +17,7 @@ Try a getting started tutorial:
  * [Blaze](https://blaze-tutorial.meteor.com/)
  * [Angular](https://www.meteor.com/tutorials/angular/creating-an-app)
  * [Vue](https://vue-tutorial.meteor.com/)
- * [Svelte](https://www.meteor.com/tutorials/svelte/creating-an-app)
+ * [Svelte](https://svelte-tutorial.meteor.com/)
 
 Next, read the [guide](https://guide.meteor.com) and the [documentation](https://docs.meteor.com/).
 
@@ -25,19 +25,19 @@ Are you looking for examples? Check this [meteor/examples](https://github.com/me
 
 ## Quick Start
 
-On Linux/macOS, use this line:
-
-```bash
-curl https://install.meteor.com/ | sh
-```
-
-On Windows, use this line:
+On Linux/macOS/Windows, use this line:
 
 ```bash
 npm install -g meteor
 ```
 
 Visit the official [install page](https://www.meteor.com/developers/install) to learn more.
+
+Alternatively, on macOS and Linux you can use:
+
+```bash
+curl https://install.meteor.com/ | sh
+```
 
 Create a project:
 
@@ -66,7 +66,7 @@ Interested in helping or contributing to Meteor?  These resources will help:
 
 * [Core development guide](DEVELOPMENT.md)
 * [Contribution guidelines](CONTRIBUTING.md)
-* [Feature requests](https://github.com/meteor/meteor-feature-requests/)
+* [Feature requests](https://github.com/meteor/meteor/discussions/)
 * [Issue tracker](https://github.com/meteor/meteor/issues)
 
 ## Uninstalling Meteor

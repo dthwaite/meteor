@@ -128,7 +128,7 @@ export class CordovaProject {
 
       const outdated = _.some(pinnedPlatformVersions, (pinnedVersion, platform) => {
         // If the platform is not installed, it cannot be outdated
-        if (!_.contains(installedPlatforms, platform)) {
+        if (!installedPlatforms.includes(platform)) {
           return false;
         }
 
@@ -266,9 +266,9 @@ outdated platforms`);
     builder.writeConfigXmlAndCopyResources();
     builder.copyWWW(bundlePath);
 
-    this.ensurePlatformsAreSynchronized();
     this.ensurePluginsAreSynchronized(pluginVersions,
-      builder.pluginsConfiguration);
+        builder.pluginsConfiguration);
+    this.ensurePlatformsAreSynchronized();
 
     // Temporary workaround for Cordova iOS bug until
     // https://issues.apache.org/jira/browse/CB-10885 is fixed
@@ -286,7 +286,7 @@ outdated platforms`);
     builder.copyBuildOverride();
   }
 
-  prepareForPlatform(platform) {
+  prepareForPlatform(platform, options) {
     assert(platform);
 
     // Temporary workaround for Cordova iOS bug until
@@ -309,7 +309,7 @@ ${displayNameForPlatform(platform)}`, async () => {
 
   // Building (includes prepare)
 
-  buildForPlatform(platform, options = {}, extraPaths) {
+  buildForPlatform(platform, options = {}) {
     assert(platform);
 
     const commandOptions = {
@@ -358,7 +358,7 @@ on an OS X system.");
 
     const installedPlatforms = this.listInstalledPlatforms();
 
-    const inProject = _.contains(installedPlatforms, platform);
+    const inProject = installedPlatforms.includes(platform);
     if (!inProject) {
       Console.warn(`Please add the ${displayNameForPlatform(platform)} \
 platform to your project first.`);
@@ -472,7 +472,7 @@ from Cordova project`, async () => {
     const installedPlatforms = this.listInstalledPlatforms();
 
     for (let platform of platforms) {
-      if (_.contains(installedPlatforms, platform)) {
+      if (installedPlatforms.includes(platform)) {
         continue;
       }
 
@@ -480,8 +480,8 @@ from Cordova project`, async () => {
     }
 
     for (let platform of installedPlatforms) {
-      if (!_.contains(platforms, platform) &&
-        _.contains(CORDOVA_PLATFORMS, platform)) {
+      if (!platforms.includes(platform) &&
+        CORDOVA_PLATFORMS.includes(platform)) {
         this.removePlatform(platform);
       }
     }
@@ -586,7 +586,7 @@ from Cordova project`, async () => {
     const { retry = true } = options;
     const target = this.targetForPlugin(id, version, options);
     if (target) {
-      const commandOptions = _.extend(this.defaultOptions,
+      const commandOptions = Object.assign(this.defaultOptions,
         { cli_variables: config, link: utils.isUrlWithFileScheme(version) });
 
       try {
@@ -614,7 +614,7 @@ to Cordova project`, cordova_lib.plugin.bind(undefined, 'add', [target],
       return;
     }
 
-    const commandOptions = _.extend(this.defaultOptions,
+    const commandOptions = Object.assign(this.defaultOptions,
       { cli_variables: config });
 
     plugins.forEach(plugin => {

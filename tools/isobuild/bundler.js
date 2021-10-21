@@ -212,7 +212,7 @@ exports._mainJsContents = [
   "",
   "process.argv.splice(2, 0, 'program.json');",
   "process.chdir(require('path').join(__dirname, 'programs', 'server'));",
-  'require("./programs/server/runtime.js");',
+  'require("./programs/server/runtime.js")({ cachePath: process.env.METEOR_REIFY_CACHE_DIR });',
   "require('./programs/server/boot.js');",
 ].join("\n");
 
@@ -223,7 +223,7 @@ exports._mainJsContents = [
 // Represents a node_modules directory that we need to copy into the
 // bundle or otherwise make available at runtime.
 
-export class NodeModulesDirectory {
+class NodeModulesDirectory {
   constructor({
     packageName,
     sourceRoot,
@@ -869,7 +869,7 @@ class Target {
             hmrAvailable: sourceBatch.hmrAvailable,
             cacheKey
           },
-          getFileOutput  
+          getFileOutput
         );
       });
 
@@ -894,8 +894,8 @@ class Target {
       if (this instanceof ClientTarget) {
         var minifiersByExt = {};
         ['js', 'css'].forEach(function (ext) {
-          minifiersByExt[ext] = _.find(minifiers, function (minifier) {
-            return minifier && _.contains(minifier.extensions, ext);
+          minifiersByExt[ext] = minifiers.find(function (minifier) {
+            return minifier && minifier.extensions.includes(ext);
           });
         });
 
@@ -1088,7 +1088,7 @@ class Target {
     if (this instanceof ClientTarget) {
       ["js", "css"].forEach(ext => {
         minifiers.some(minifier => {
-          if (_.contains(minifier.extensions, ext)) {
+          if (minifier.extensions.includes(ext)) {
             return minifiersByExt[ext] = minifier;
           }
         });
@@ -1156,7 +1156,7 @@ class Target {
       .computeJsOutputFilesMap(sourceBatches);
 
     sourceBatches.forEach(batch => {
-      const { unibuild } = batch;
+      const { unibuild, sourceRoot } = batch;
 
       // Depend on the source files that produced these resources.
       this.watchSet.merge(unibuild.watchSet);
@@ -1264,7 +1264,7 @@ class Target {
           return;
         }
 
-        if (_.contains(['js', 'css'], resource.type)) {
+        if (['js', 'css'].includes(resource.type)) {
           if (resource.type === 'css' && ! isWeb) {
             // XXX might be nice to throw an error here, but then we'd
             // have to make it so that package.js ignores css files
@@ -1317,7 +1317,7 @@ class Target {
           return;
         }
 
-        if (_.contains(['head', 'body'], resource.type)) {
+        if (['head', 'body'].includes(resource.type)) {
           if (! isWeb) {
             throw new Error('HTML segments can only go to the client');
           }
@@ -1349,6 +1349,7 @@ class Target {
     });
 
     // Call any plugin.afterLink callbacks defined by compiler plugins,
+    // and update the watch set's list of potentially unused files
     // now that all compilation (including lazy compilation) is finished.
     sourceBatches.forEach(batch => {
       batch.resourceSlots.forEach(slot => {
@@ -1359,7 +1360,28 @@ class Target {
           plugin.afterLink();
         }
       });
+
+      // Any source resource that the content or hash was accessed for are marked
+      // as definitely used.
+      // If there are any output resources for these in the js output, they are
+      // excluded from the importScannerWatchSet so they are only marked as
+      // definitely used if their content was used, not if they are added
+      // to the built app.
+      batch.unibuild.resources.forEach(resource => {
+        if (resource.type !== 'source' || resource._dataUsed === false) {
+          return;
+        }
+
+        assert.strictEqual(
+          typeof resource._dataUsed,
+          "boolean"
+        );
+
+        let absPath = files.pathJoin(batch.sourceRoot, resource.path);
+        this.watchSet.addFile(absPath, resource.hash);
+      });
     });
+
   }
 
   // Minify the JS in this target
@@ -1415,7 +1437,7 @@ class Target {
         if (typeof file.data === 'string') {
           file.data = Buffer.from(file.data, "utf8");
         }
-        const replaceable = possiblyReplaceable && 
+        const replaceable = possiblyReplaceable &&
           file.data.equals(source._source.contents());
 
         const newFile = new File({
@@ -2085,7 +2107,7 @@ class JsImage {
         return;
       }
 
-      var env = _.extend({
+      var env = Object.assign({
         Package: ret,
         Npm: {
           require: Profile(function (name) {
@@ -2562,7 +2584,7 @@ class JsImage {
 
       let nodeModulesDirectories;
       if (item.node_modules) {
-        _.extend(
+        Object.assign(
           ret.nodeModulesDirectories,
           nodeModulesDirectories =
             NodeModulesDirectory.readDirsFromJSON(item.node_modules, {
@@ -2807,7 +2829,8 @@ var writeFile = Profile("bundler writeFile", function (file, builder, options) {
   }
 
   if (options && options.sourceMapUrl) {
-    data = addSourceMappingURL(data, options.sourceMapUrl);
+    const url = (process.env.ROOT_URL || "") + options.sourceMapUrl;
+    data = addSourceMappingURL(data, url);
   } else if (!options || !options.leaveSourceMapUrls) {
     // If we do not have an options.sourceMapUrl to append, then we still
     // want to remove any existing //# sourceMappingURL comments.
@@ -3125,7 +3148,7 @@ Find out more about Meteor at meteor.com.
  *  - onJsOutputFiles Called for each unibuild in a client arch with a list of js files
  *    that will be linked, and a function to get their prelink output with their closure
  *    and banner.
- * 
+ *
  * Returns an object with keys:
  * - errors: A buildmessage.MessageSet, or falsy if bundling succeeded.
  * - serverWatchSet: Information about server files and paths that were
@@ -3202,7 +3225,7 @@ function bundle({
     throw new Error("running wrong release for app?");
   }
 
-  if (! _.contains(['development', 'production', 'test'], buildMode)) {
+  if (! ['development', 'production', 'test'].includes(buildMode)) {
     throw new Error('Unrecognized build mode: ' + buildMode);
   }
 
@@ -3295,7 +3318,7 @@ function bundle({
     }
 
     var minifiers = null;
-    if (! _.contains(['development', 'production'], minifyMode)) {
+    if (! ['development', 'production'].includes(minifyMode)) {
       throw new Error('Unrecognized minification mode: ' + minifyMode);
     }
     minifiers = compiler.getMinifiers(packageSource, {
@@ -3551,7 +3574,7 @@ exports.buildJsImage = Profile("bundler.buildJsImage", function (options) {
   return {
     image: target.toJsImage(),
     watchSet: target.getWatchSet(),
-    usedPackageNames: _.keys(target.usedPackages)
+    usedPackageNames: Object.keys(target.usedPackages)
   };
 });
 
@@ -3562,3 +3585,5 @@ exports.readJsImage = Profile(
   "bundler.readJsImage", function (controlFilePath) {
   return JsImage.readFromDisk(controlFilePath);
 });
+
+exports.NodeModulesDirectory = NodeModulesDirectory;

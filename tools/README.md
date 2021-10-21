@@ -126,7 +126,7 @@ variable `SELF_TEST_TOOL_NODE_FLAGS` could be used the same way
 `TOOL_NODE_FLAGS` is used. If you are setting the env variable
 `SELF_TEST_TOOL_NODE_FLAGS` with `TOOL_NODE_FLAGS`, consider specifying a
 custom port, as they could collide trying to listen to the same port.
-To set a custom port, you could set the variable in the followind manner
+To set a custom port, you could set the variable in the following manner
 `SELF_TEST_TOOL_NODE_FLAGS="--debug-brk=5859"` and the debugger will
 listen to the port 5859 and not the default 5858.
 
@@ -140,8 +140,7 @@ The entry-point of the tools code is in `index.js`.
 The Meteor Tool code has two modes of running:
 
 - from local checkout for development
-- from a production release installed by running
-`curl -L https://install.meteor.com | sh` or a Windows installer.
+- from a production release installed by running `npm install -g meteor`.
 
 There are two different `meteor` / `meteor.bat` starting scripts in development
 and production. The production one is written by the packaging code.

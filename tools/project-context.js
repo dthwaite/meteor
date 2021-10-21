@@ -1,3 +1,4 @@
+
 var assert = require("assert");
 var _ = require('underscore');
 
@@ -15,7 +16,68 @@ var tropohouse = require('./packaging/tropohouse.js');
 var utils = require('./utils/utils.js');
 var watch = require('./fs/watch');
 var Profile = require('./tool-env/profile').Profile;
-import { KNOWN_ISOBUILD_FEATURE_PACKAGES } from './isobuild/compiler.js';
+
+// This variable was duplicated due to an issue on importing it.
+// The issue only happens on node 14, and is most surely related to this: https://nodejs.org/en/blog/release/v14.0.0/
+// !!! When changing this, also change on tools/packaging/catalog/catalog-local.js !!!
+const KNOWN_ISOBUILD_FEATURE_PACKAGES = {
+  // This package directly calls Plugin.registerCompiler. Package authors
+  // must explicitly depend on this feature package to use the API.
+  'isobuild:compiler-plugin': ['1.0.0'],
+
+  // This package directly calls Plugin.registerMinifier. Package authors
+  // must explicitly depend on this feature package to use the API.
+  'isobuild:minifier-plugin': ['1.0.0'],
+
+  // This package directly calls Plugin.registerLinter. Package authors
+  // must explicitly depend on this feature package to use the API.
+  'isobuild:linter-plugin': ['1.0.0'],
+
+  // This package is only published in the isopack-2 format, not isopack-1 or
+  // older. ie, it contains "source" files for compiler plugins, not just
+  // JS/CSS/static assets/head/body.
+  // This is implicitly added at publish time to any such package; package
+  // authors don't have to add it explicitly. It isn't relevant for local
+  // packages, which can be rebuilt if possible by the older tool.
+  //
+  // Specifically, this is to avoid the case where a package is published with a
+  // dependency like `api.use('less@1.0.0 || 2.0.0')` and the publication
+  // selects the newer compiler plugin version to generate the isopack. The
+  // published package (if this feature package wasn't implicitly included)
+  // could still be selected by the Version Solver to be used with an old
+  // Isobuild... just because less@2.0.0 depends on isobuild:compiler-plugin
+  // doesn't mean it couldn't choose less@1.0.0, which is not actually
+  // compatible with this published package.  (Constraints of the form described
+  // above are not very helpful, but at least we can prevent old Isobuilds from
+  // choking on confusing packages.)
+  //
+  // (Why not isobuild:isopack@2.0.0? Well, that would imply that Version Solver
+  // would have to choose only one isobuild:isopack feature version, which
+  // doesn't make sense here.)
+  'isobuild:isopack-2': ['1.0.0'],
+
+  // This package uses the `prodOnly` metadata flag, which causes it to
+  // automatically depend on the `isobuild:prod-only` feature package.
+  'isobuild:prod-only': ['1.0.0'],
+
+  // This package depends on a specific version of Cordova. Package authors must
+  // explicitly depend on this feature package to indicate that they are not
+  // compatible with earlier Cordova versions, which is most likely a result of
+  // the Cordova plugins they depend on.
+  // One scenario is a package depending on a Cordova plugin or version
+  // that is only available on npm, which means downloading the plugin is not
+  // supported on versions of Cordova below 5.0.0.
+  'isobuild:cordova': ['5.4.0'],
+
+  // This package requires functionality introduced in meteor-tool@1.5.0
+  // to enable dynamic module fetching via import(...).
+  'isobuild:dynamic-import': ['1.5.0'],
+
+  // This package ensures that processFilesFor{Bundle,Target,Package} are
+  // allowed to return a Promise instead of having to await async
+  // compilation using fibers and/or futures.
+  'isobuild:async-plugins': ['1.6.1'],
+}
 
 import {
   optimisticReadJsonOrNull,
@@ -72,11 +134,11 @@ var STAGE = {
   SAVE_CHANGED_METADATA: 'DONE'
 };
 
-_.extend(ProjectContext.prototype, {
+Object.assign(ProjectContext.prototype, {
   reset: function (moreOptions, resetOptions) {
     var self = this;
     // Allow overriding some options until the next call to reset;
-    var options = _.extend({}, self.originalOptions, moreOptions);
+    var options = Object.assign({}, self.originalOptions, moreOptions);
     // This is options that are actually directed at reset itself.
     resetOptions = resetOptions || {};
 
@@ -424,12 +486,11 @@ _.extend(ProjectContext.prototype, {
     // post-constraint-solve).
     var self = this;
     var watchSet = new watch.WatchSet;
-    _.each(
-      [self.releaseFile, self.projectConstraintsFile, self.packageMapFile,
-       self.platformList, self.cordovaPluginsFile],
+    [self.releaseFile, self.projectConstraintsFile, self.packageMapFile,
+      self.platformList, self.cordovaPluginsFile].forEach(
       function (metadataFile) {
         metadataFile && watchSet.merge(metadataFile.watchSet);
-      });
+    });
 
     if (self.localCatalog) {
       watchSet.merge(self.localCatalog.packageLocationWatchSet);
@@ -516,7 +577,7 @@ _.extend(ProjectContext.prototype, {
 
     if (self.explicitlyAddedPackageNames.length) {
       cachedVersions = _.clone(cachedVersions);
-      _.each(self.explicitlyAddedPackageNames, function (p) {
+      self.explicitlyAddedPackageNames.forEach(function (p) {
         delete cachedVersions[p];
       });
     }
@@ -939,7 +1000,7 @@ exports.ProjectConstraintsFile = function (options) {
   self._readFile();
 };
 
-_.extend(exports.ProjectConstraintsFile.prototype, {
+Object.assign(exports.ProjectConstraintsFile.prototype, {
   _readFile: function () {
     var self = this;
     buildmessage.assertInCapture();
@@ -1015,7 +1076,7 @@ _.extend(exports.ProjectConstraintsFile.prototype, {
       self._constraintMap[lineRecord.constraint.package] = lineRecord;
     });
 
-    _.each(_.keys(extraConstraintMap), function (key) {
+    Object.keys(extraConstraintMap).forEach(function (key) {
       var lineRecord = extraConstraintMap[key];
       self._constraintLines.push(lineRecord);
       self._constraintMap[lineRecord.constraint.package] = lineRecord;
@@ -1136,10 +1197,10 @@ _.extend(exports.ProjectConstraintsFile.prototype, {
   // of project preparation.
   removePackages: function (packagesToRemove) {
     var self = this;
-    self._constraintLines = _.filter(
-      self._constraintLines, function (lineRecord) {
+    self._constraintLines = self._constraintLines.filter(
+      function (lineRecord) {
         return ! (lineRecord.constraint &&
-                  _.contains(packagesToRemove, lineRecord.constraint.package));
+          packagesToRemove.includes(lineRecord.constraint.package));
       });
     _.each(packagesToRemove, function (p) {
       delete self._constraintMap[p];
@@ -1175,7 +1236,7 @@ exports.PackageMapFile = function (options) {
   self._readFile();
 };
 
-_.extend(exports.PackageMapFile.prototype, {
+Object.assign(exports.PackageMapFile.prototype, {
   _readFile: function () {
     var self = this;
 
@@ -1233,7 +1294,7 @@ _.extend(exports.PackageMapFile.prototype, {
       return;
 
     self._versions = newVersions;
-    var packageNames = _.keys(self._versions);
+    var packageNames = Object.keys(self._versions);
     packageNames.sort();
     var lines = [];
     _.each(packageNames, function (packageName) {
@@ -1266,7 +1327,7 @@ exports.PlatformList = function (options) {
 // These platforms are always present and can be neither added or removed
 exports.PlatformList.DEFAULT_PLATFORMS = ['browser', 'server'];
 
-_.extend(exports.PlatformList.prototype, {
+Object.assign(exports.PlatformList.prototype, {
   _readFile: function () {
     var self = this;
 
@@ -1354,7 +1415,7 @@ exports.CordovaPluginsFile = function (options) {
   self._readFile();
 };
 
-_.extend(exports.CordovaPluginsFile.prototype, {
+Object.assign(exports.CordovaPluginsFile.prototype, {
   _readFile: function () {
     var self = this;
     buildmessage.assertInCapture();
@@ -1402,7 +1463,7 @@ _.extend(exports.CordovaPluginsFile.prototype, {
 
   write: function (plugins) {
     var self = this;
-    var pluginNames = _.keys(plugins);
+    var pluginNames = Object.keys(plugins);
     pluginNames.sort();
     var lines = _.map(pluginNames, function (pluginName) {
       return pluginName + '@' + plugins[pluginName] + '\n';
@@ -1443,7 +1504,7 @@ exports.ReleaseFile = function (options) {
   self._readFile();
 };
 
-_.extend(exports.ReleaseFile.prototype, {
+Object.assign(exports.ReleaseFile.prototype, {
   fileMissing: function () {
     var self = this;
     return self.unnormalizedReleaseName === null;
@@ -1586,7 +1647,7 @@ exports.FinishedUpgraders = function (options) {
     options.projectDir, '.meteor', '.finished-upgraders');
 };
 
-_.extend(exports.FinishedUpgraders.prototype, {
+Object.assign(exports.FinishedUpgraders.prototype, {
   readUpgraders: function () {
     var self = this;
     var upgraders = [];

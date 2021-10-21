@@ -132,7 +132,7 @@ Isopack.knownFormats = ["unipackage-pre2", "isopack-1", "isopack-2"];
 // not semantic, and occur entirely in the isopack.json file, not in the
 // individual unibuild json files. These functions are written assuming those
 // constraints, and were not actually useful in the isopack-1/isopack-2
-// transition,where most of the changes are in the unibuild level, and there's
+// transition, where most of the changes are in the unibuild level, and there's
 // actual semantic changes involved. So they are not actually used as much as
 // they were before.
 Isopack.convertOneStepForward = function (data, fromFormat) {
@@ -164,8 +164,8 @@ Isopack.convertOneStepBackward = function (data, fromFormat) {
 };
 Isopack.convertIsopackFormat = Profile(
   "Isopack.convertIsopackFormat", function (data, fromFormat, toFormat) {
-  var fromPos = _.indexOf(Isopack.knownFormats, fromFormat);
-  var toPos = _.indexOf(Isopack.knownFormats, toFormat);
+  var fromPos = Isopack.knownFormats.indexOf(fromFormat);
+  var toPos = Isopack.knownFormats.indexOf(toFormat);
   var step = fromPos < toPos ? 1 : -1;
 
   if (fromPos === -1) {
@@ -241,7 +241,7 @@ Isopack.readMetadataFromDirectory =
   return {metadata, originalVersion};
 });
 
-_.extend(Isopack.prototype, {
+Object.assign(Isopack.prototype, {
   // Make a dummy (empty) package that contains nothing of interest.
   // XXX used?
   initEmpty: function (name) {
@@ -316,7 +316,7 @@ _.extend(Isopack.prototype, {
     if (! anySourceFiles) {
       return null;
     }
-    return _.keys(sourceFiles);
+    return Object.keys(sourceFiles);
   }),
 
   // An sorted array of all the architectures included in this package.
@@ -334,7 +334,7 @@ _.extend(Isopack.prototype, {
         archSet[arch] = true;
       });
     });
-    var arches = _.keys(archSet).sort();
+    var arches = Object.keys(archSet).sort();
     // Ensure that our buildArchitectures string does not look like
     //    web+os+os.osx.x86_64
     // This would happen if there is an 'os' unibuild but a platform-specific
@@ -453,7 +453,7 @@ _.extend(Isopack.prototype, {
 
     _.each(self.plugins, function (pluginsByArch, name) {
       var arch = archinfo.mostSpecificMatch(
-        archinfo.host(), _.keys(pluginsByArch));
+        archinfo.host(), Object.keys(pluginsByArch));
       if (! arch) {
         buildmessage.error("package `" + name + "` is built for incompatible " +
                            "architecture");
@@ -768,8 +768,8 @@ _.extend(Isopack.prototype, {
        * @locus Build Plugin
        */
       registerMinifier: function (options, factory) {
-        var badUsedExtension = _.find(options.extensions, function (ext) {
-          return ! _.contains(['js', 'css'], ext);
+        var badUsedExtension = options.extensions.find(function (ext) {
+          return ! ['js', 'css'].includes(ext);
         });
 
         if (badUsedExtension !== undefined) {
@@ -1584,7 +1584,7 @@ _.extend(Isopack.prototype, {
       _.each(unibuild.uses, processUse);
       _.each(unibuild.implies, processUse);
     });
-    return _.keys(packages);
+    return Object.keys(packages);
   }),
 
   featureEnabled(featurePackageName) {

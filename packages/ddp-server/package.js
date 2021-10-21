@@ -1,12 +1,12 @@
 Package.describe({
   summary: "Meteor's latency-compensated distributed data server",
-  version: '2.3.2',
+  version: '2.5.0',
   documentation: null
 });
 
 Npm.depends({
   "permessage-deflate": "0.1.7",
-  sockjs: "0.3.20"
+  sockjs: "0.3.21"
 });
 
 Package.onUse(function (api) {
@@ -55,6 +55,7 @@ Package.onTest(function (api) {
   api.use(['underscore', 'tinytest', 'random', 'tracker', 'minimongo', 'reactive-var']);
 
   api.addFiles('livedata_server_tests.js', 'server');
+  api.addFiles('livedata_server_async_tests.js', 'server');
   api.addFiles('session_view_tests.js', ['server']);
   api.addFiles('crossbar_tests.js', ['server']);
 });

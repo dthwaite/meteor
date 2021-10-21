@@ -58,7 +58,6 @@
 import { createInterface } from "readline";
 import { format as utilFormat }  from "util";
 import { getRootProgress } from "../utils/buildmessage.js";
-// XXX: Are we happy with chalk (and its sub-dependencies)?
 import chalk from "chalk";
 import { onExit as cleanupOnExit } from "../tool-env/cleanup.js";
 import wordwrap from "wordwrap";
@@ -77,10 +76,6 @@ const CARRIAGE_RETURN = process.platform === 'win32' &&
 
 const FORCE_PRETTY = process.env.METEOR_PRETTY_OUTPUT &&
   process.env.METEOR_PRETTY_OUTPUT != '0';
-
-if (! process.env.METEOR_COLOR) {
-  chalk.enabled = false;
-}
 
 const STATUS_MAX_LENGTH = 40;
 
