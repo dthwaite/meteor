@@ -1,12 +1,224 @@
-## vNEXT, UNRELEASED
+## 2.7.3, 2022-05-31
+
+#### Highlights
+* `accounts-passwordless@2.1.2`:
+  - Throwing an error when the login tokens are not generated well calling requestLoginTokenForUser. [PR](https://github.com/meteor/meteor/pull/12047/files).
+* Node updated to v14.19.3
+* npm update to v6.14.17
+* Fix recompiling npm packages for web arch. [PR](https://github.com/meteor/meteor/pull/12023).
+
+#### Breaking Changes
+N/A
+
+#### Migration Steps
+
+#### Meteor Version Release
+* `accounts-passwordless@2.1.2`:
+  - Throwing an error when the login tokens are not generated well calling requestLoginTokenForUser. [PR](https://github.com/meteor/meteor/pull/12047/files).
+* `babel-runtime@1.5.1`:
+  - Make client 25kb smaller. [PR](https://github.com/meteor/meteor/pull/12051).
+* Node updated to v14.19.3
+* npm update to v6.14.17
+* Fix win style paths being added to watch sets.
+* Fix recompiling npm packages for web arch. [PR](https://github.com/meteor/meteor/pull/12023).
+
+## 2.7.2, 2022-05-10
+
+#### Highlights
+
+#### Breaking Changes
+N/A
+#### Migration Steps
+
+#### Meteor Version Release
+
+* `mongo@1.15.0`
+  - New option `Meteor.settings.packages.mongo.reCreateIndexOnOptionMismatch` for case when an index with the same name, but different options exists it will be re-created. 
+  - If there is an error on index creation Meteor will output a better message naming the collection and index where the error occured. [PR](https://github.com/meteor/meteor/pull/11995).
+* `modern-browsers@0.1.8`
+  - New api `getMinimumBrowserVersions` to access the `minimumBrowserVersions`. [PR](https://github.com/meteor/meteor/pull/11998).
+* `socket-stream-client@0.5.0`
+  - Ability to disable sockjs on client side. [PR](https://github.com/meteor/meteor/pull/12007/).
+* `meteor-node-stubs@1.2.3`:
+  - Fix using meteor-node-stubs in IE. [PR](https://github.com/meteor/meteor/pull/12014).
+* New ARCH environment variable that permit users to set uname info. [PR](https://github.com/meteor/meteor/pull/12020).
+* Skeleton dependencies updated.
+* New Tailwind skeleton. [PR](https://github.com/meteor/meteor/pull/12000).
+
+#### Independent Releases
+
+## v2.7.1, 2022-03-31
 
 #### Highlights
 
 #### Breaking Changes
 
+* `accounts-2fa@2.0.0`
+  - The method `has2faEnabled` no longer takes a selector as an argument, just the callback.
+  - `generate2faActivationQrCode` now throws an error if it's being called when the user already has 2FA enabled.
+
 #### Migration Steps
 
 #### Meteor Version Release
+
+* `accounts-2fa@2.0.0`
+  - Reduce one DB call on 2FA login. [PR](https://github.com/meteor/meteor/pull/11985)
+  - Throw error when user is not found on `Accounts._is2faEnabledForUser`
+  - Remove vulnerability from the method `has2faEnabled`
+  - Now the package auto-publish the field `services.twoFactorAuthentication.type` for logged in users.
+* `accounts-password@2.3.1`
+  - Use method `Accounts._check2faEnabled` when validating 2FA
+* `accounts-passwordless@2.1.1`
+  - Use method `Accounts._check2faEnabled` when validating 2FA
+* `oauth@2.1.2`
+  - Check effectively if popup was blocked by browser. [PR](https://github.com/meteor/meteor/pull/11984)
+* `standard-minifier-css@1.8.1`
+  - PostCSS bug fixes. [PR](https://github.com/meteor/meteor/pull/11987/files)
+
+#### Independent Releases
+
+## v2.7, 2022-03-24
+
+#### Highlights
+* Bump node version to 14.19.1
+* TailwindCSS 3.x support
+* Typescript `4.5.4` upgrade
+* New core package: `accounts-2fa`
+* Support for 2FA in `accounts-password` and `accounts-passwordless`
+* PostCSS's plugins are run by `standard-minifier-css` if the app has PostCSS configured
+* App skeletons and test packages were updated to `meteor-node-stubs@1.2.1`
+
+#### Breaking Changes
+
+N/A
+
+#### Migration Steps
+
+Read our [Migration Guide](https://guide.meteor.com/2.7-migration.html) for this version.
+
+#### Meteor Version Release
+
+* `standard-minifier-css@1.8.0`
+  - Runs PostCSS plugins if the app has a PostCSS config and the `postcss-load-config` npm package installed. Supports TailwindCSS 3.x [PR 1](https://github.com/Meteor-Community-Packages/meteor-postcss/pull/56) [PR 2](https://github.com/meteor/meteor/pull/11903)
+
+* `react-fast-refresh@0.2.3`
+  - Fix tracking states with circular dependencies. [PR](https://github.com/meteor/meteor/pull/11923)
+  
+* `accounts-2fa@1.0.0`
+  - New package to provide 2FA support
+  
+* `accounts-password@2.3.0`
+  - 2FA support
+  
+* `accounts-passwordless@2.1.0`
+  - 2FA support
+
+* `@meteorjs/babel@7.16.0`
+  - Upgrade TypeScript to `4.5.4`
+
+* `babel-compiler@7.9.0`
+  - Upgrade TypeScript to `4.5.4`
+
+* `ecmascript@0.16.2`
+  - Upgrade TypeScript to `4.5.4`
+
+* `typescript@4.5.4`
+  - Upgrade TypeScript to `4.5.4` [PR](https://github.com/meteor/meteor/pull/11846)
+
+* `accounts-ui-unstyled@1.6.0`
+  - `Accounts.ui.config` can now be set via `Meteor.settings.public.packages.accounts-ui-unstyled`.
+
+* `meteor-tool@2.7`
+  - CSS minifiers must now handle any caching themselves [PR](https://github.com/meteor/meteor/pull/11882)
+  - CSS minifiers are always given lazy css resources instead of only during production builds [PR](https://github.com/meteor/meteor/pull/11897)
+  - Files passed to CSS minifiers now have `file.readAndWatchFileWithHash`, same as for compilers [PR](https://github.com/meteor/meteor/pull/11882)
+  - If a minifier has a `beforeMinify` function, it will be called once during each build before the minifier is run the first time [PR](https://github.com/meteor/meteor/pull/11882)
+  - Add `Plugin.fs.readdirWithTypesSync` [PR](https://github.com/meteor/meteor/pull/11882)
+
+* `ejson@1.1.2`
+  - Fixing error were EJSON.equals fail to compare object and array if first param is object and second is array. [PR](https://github.com/meteor/meteor/pull/11866), [Issue](https://github.com/meteor/meteor/issues/11864).
+  
+* `oauth@1.4.1`
+  - If OAuth._retrieveCredentialSecret() fails trying to get credentials inside Accounts.oauth.tryLoginAfterPopupClosed(), we call it again once more.
+
+* `accounts-base@2.2.2`
+  - Fix an issue where an extra field defined in `defaultFieldSelector` would not get published to the client
+  - Proving the login results to the `_onLoginHook` when finishing login inside `callLoginMethod`. [PR](https://github.com/meteor/meteor/pull/11913).
+
+* `github-oauth@1.4.0`
+  - More data will be retrieved and saved under `services.github` on the user account.
+  - Add option to disallow sign-up on GitHub using `allow_signup` [parameter](https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#parameters), this will be activated based on your Accounts settings, specifically if the option `forbidClientAccountCreation` is set to `true`.
+
+* `email@2.2.1`
+  - Throwing error when trying to send email in a production environment but without a mail URL set. [PR](https://github.com/meteor/meteor/pull/11891), [Issue](https://github.com/meteor/meteor/issues/11709).
+
+* `facebook-oauth@1.11.0`
+  - Updated Facebook API to version 12.0
+
+* `google-oauth@1.4.2`
+  - Migrate from `http` to `fetch`
+
+* `modules-runtime@0.13.0`
+  - Fix some npm modules being imported as an empty object. [PR](https://github.com/meteor/meteor/pull/11954), [Issue 1](https://github.com/meteor/meteor/issues/11900), [Issue 2](https://github.com/meteor/meteor/issues/11853).
+
+* `meteor-node-stubs@1.2.1`
+  - Adds support for [node:](https://nodejs.org/api/esm.html#node-imports) imports.
+
+* `minifier-jss@2.8.0`
+  - Updating terser. It will fix this [issue](https://github.com/meteor/meteor/issues/11721) and [this](https://github.com/meteor/meteor/issues/11930) one. [PR](https://github.com/meteor/meteor/pull/11983).
+
+#### Independent Releases
+
+## v2.6.1, 2022-02-18
+
+#### Highlights
+
+* Fix regression on build speed by updating babel dependencies to 7.17.x
+* We have removed IE 9 from our browser test list
+* We are changing the device used for testing, Samsung Galaxy S7, as browserstack is having issues provisioning it. We will be using now Samsung Galaxy Note 10.
+* Fix issue when generating tarballs from Windows systems related to execute permissions
+* Fix issues with HMR and meteor build --debug [PR](https://github.com/meteor/meteor/pull/11922)
+
+
+#### Breaking Changes
+
+- IE 9 might not be compatible from now on, although, we will still consider PR's fixing it.
+
+#### Migration Steps
+
+#### Meteor Version Release
+
+* `meteor-tool@2.6.1`
+  - Use latest @meteor/babel dependency with @babel@7.17.x
+  
+* `@meteorjs/babel@7.15.1`
+  - Use babel@7.17.x
+  
+* `babel-compiler@7.8.1`
+  - Use latest @meteor/babel dependency with @babel@7.17.x
+  
+* `hot-module-replacement@0.5.1`
+  - Fix issues with HMR and meteor build --debug [PR](https://github.com/meteor/meteor/pull/11922)
+  
+* `webapp@1.13.1`
+  - Fix issues with HMR and meteor build --debug [PR](https://github.com/meteor/meteor/pull/11922)
+
+#### Independent Releases
+
+* `mongo@1.14.6` at 2022-02-18
+  - Remove false-positive warning for supported operation a.0.b:{}
+* `mongo@1.14.5` at 2022-02-16
+  - Fix multiple array operators bug and add support for debug messages
+  - Fix isArrayOperator function regexp false-positive
+* `mongo@1.14.4` at 2022-02-11
+  - Fix sync return for insert methods inside _collection private method [PR](https://github.com/meteor/meteor/pull/11907)
+  - Support the new "projection" field inside the decision of using oplog for a published cursor or not [PR](https://github.com/meteor/meteor/pull/11908)
+* `mongo@1.14.3` at 2022-02-08
+  - Remove throw on _id exclusion inside mongo collection finds. [PR](https://github.com/meteor/meteor/pull/11894).
+* `mongo@1.14.2` at 2022-02-06
+  - Fix flatten object issue when internal object value is an array on oplog converter. [PR](https://github.com/meteor/meteor/pull/11888).
+* `mongo@1.14.1` at 2022-02-04
+  - Fix flatten object issue when the object is empty on oplog converter. [PR](https://github.com/meteor/meteor/pull/11885), [Issue](https://github.com/meteor/meteor/issues/11884).
 
 ## v2.6, 2022-02-01
 
@@ -32,18 +244,19 @@ Read our [Migration Guide](https://guide.meteor.com/2.6-migration.html) for this
 #### Meteor Version Release
 
 * `mongo@1.14.0`
+    - `applySkipLimit` option for count() on find cursors is no longer supported. Read more about it [here](https://guide.meteor.com/2.6-migration.html), in the `Cursor.count()` section.
     - internal result of operations inside Node.js MongoDB driver have changed. If you are depending on rawCollection results (not only the effect inside the DB), please review the expected format as we have done [here](https://github.com/meteor/meteor/blob/155ae639ee590bae66237fc1c29295072ec92aef/packages/mongo/mongo_driver.js#L658)
     - useUnifiedTopology is not an option anymore, it defaults to true.
     - native parser is not an option anymore, it defaults to false in the mongo connection.
     - poolSize not an option anymore, we are using max/minPoolSize for the same behavior on mongo connection.
     - fields option is deprecated, we are maintaining a translation layer to "projection" field (now prefered) until the next minor version, where we will start showing alerts.
     - _ensureIndex is now showing a deprecation message
-    - applySkipLimit option for count() on find cursors is no longer supported.
     - we are maintaining a translation layer for the new oplog format, so if you read or rely on any behavior of it please read our oplog_v2_converter.js code
     - update/insert/remove behavior is maintained in the Meteor way, documented in our docs, but we are now using replaceOne/updateOne/updateMany internally. This is subject to changes in the API rewrite of MongoDB without Fibers AND if you are using rawCollection directly you have to review your methods otherwise you will see deprecation messages if you are still using the old mongodb style directly.
     - waitForStepDownOnNonCommandShutdown=false is not needed anymore when spawning the mongodb process
     - _synchronousCursor._dbCursor.operation is not an option anymore in the raw cursor from nodejs mongodb driver. If you want to access the options, use _synchronousCursor._dbCursor.(GETTERS) - for example, _synchronousCursor._dbCursor.readPreference.
     - the default write preference for replica sets on mongo v5 is w:majority
+    - If you are using MongoDB inside a Docker container in your dev environment, you might need to append directConnection=true in your mongouri to avoid the new mongo driver Service Discovery feature
 
 * `allow-deny@1.1.1`
     - Handle `MongoBulkWriteError` as `BulkWriteError` was already handled.
@@ -146,6 +359,8 @@ This version should be ignored. Proceed to 2.5.5 above.
 * HMR Fixes
 
 #### Breaking Changes
+
+* If a module calls `module.hot.decline()`, calling `module.hot.accept()` later now does nothing instead of overriding `module.hot.decline()`.
 
 #### Migration Steps
 
