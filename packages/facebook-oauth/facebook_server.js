@@ -78,7 +78,7 @@ const getTokenResponse = async (query) => {
   });
   if (!config) throw new ServiceConfiguration.ConfigError();
 
-  const absoluteUrlOptions = getAbsoluteUrlOptions(query);
+  let absoluteUrlOptions = getAbsoluteUrlOptions(query);
   if (query.state && !absoluteUrlOptions) {
     var rootUrl = OAuth._stateFromQuery(query).rootUrl;
     if (rootUrl) absoluteUrlOptions = {rootUrl: rootUrl};
