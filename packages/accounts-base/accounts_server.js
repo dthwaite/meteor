@@ -648,7 +648,6 @@ export class AccountsServer extends AccountsCommon {
       check(options, Object);
 
       const result = await accounts._runLoginHandlers(this, options);
-      //console.log({result});
 
       return await accounts._attemptLogin(this, "login", arguments, result);
     };
