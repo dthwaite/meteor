@@ -48,7 +48,8 @@ export const signIn = Google.signIn = (options, callback) => {
     }, response => {
       Accounts.callLoginMethod({
         methodArguments: [Object.assign({
-          googleSignIn: true
+          googleSignIn: true,
+          noCreate: FlowRouter.current().route.name!=='signup'
         }, response)],
         userCallback: callback
       });

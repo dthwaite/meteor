@@ -80,7 +80,6 @@ Accounts.registerLoginHandler(async (request) => {
   if (request.googleSignIn !== true) {
     return;
   }
-  console.log({ request });
   const tokens = {
     accessToken: request.accessToken,
     refreshToken: request.refreshToken,
@@ -99,6 +98,7 @@ Accounts.registerLoginHandler(async (request) => {
   let result;
   try {
     result = await getServiceDataFromTokens(tokens);
+    result.options.noCreate=request.noCreate;
   } catch (err) {
     throw Object.assign(
       new Error(
@@ -107,7 +107,6 @@ Accounts.registerLoginHandler(async (request) => {
       { response: err.response }
     );
   }
-  console.log({ result });
   return Accounts.updateOrCreateUserFromExternalService(
     'google',
     {
@@ -131,12 +130,16 @@ const getTokens = async (query, callback) => {
     service: 'google',
   });
   if (!config) throw new ServiceConfiguration.ConfigError();
-
+  let absoluteUrlOptions;
+  if (query.state) {
+    let rootUrl = OAuth._stateFromQuery(query).rootUrl;
+    if (rootUrl) absoluteUrlOptions = {rootUrl: rootUrl};
+  }
   const content = new URLSearchParams({
     code: query.code,
     client_id: config.clientId,
     client_secret: OAuth.openSecret(config.secret),
-    redirect_uri: OAuth._redirectUri('google', config),
+    redirect_uri: OAuth._redirectUri('google', config, undefined, absoluteUrlOptions),
     grant_type: 'authorization_code',
   });
   const request = await fetch('https://accounts.google.com/o/oauth2/token', {

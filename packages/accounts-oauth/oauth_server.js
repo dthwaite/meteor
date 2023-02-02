@@ -12,7 +12,8 @@ Accounts.registerLoginHandler(options => {
     // the error in the pending credentials table, with a secret of
     // null. The client can call the login method with a secret of null
     // to retrieve the error.
-    credentialSecret: Match.OneOf(null, String)
+    credentialSecret: Match.OneOf(null, String),
+    noCreate: Match.Maybe(Boolean)
   });
 
   const result = OAuth.retrieveCredential(options.oauth.credentialToken,
@@ -54,7 +55,13 @@ Accounts.registerLoginHandler(options => {
                  `No registered oauth service found for: ${result.serviceName}`) };
 
     }
-    return Accounts.updateOrCreateUserFromExternalService(result.serviceName, result.serviceData, result.options);
+    if (result.serviceData.email) {
+      result.options.noCreate=options.oauth.noCreate;
+      return Accounts.updateOrCreateUserFromExternalService(result.serviceName, result.serviceData, result.options);
+    } else return {
+      type: "oauth",
+      error: new Meteor.Error(403, "No matching user found (no email)")
+    };
   }
 });
 

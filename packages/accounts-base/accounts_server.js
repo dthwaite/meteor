@@ -648,7 +648,6 @@ export class AccountsServer extends AccountsCommon {
       check(options, Object);
 
       const result = await accounts._runLoginHandlers(this, options);
-      //console.log({result});
 
       return await accounts._attemptLogin(this, "login", arguments, result);
     };
@@ -1310,6 +1309,7 @@ export class AccountsServer extends AccountsCommon {
     }
 
     let user = this.users.findOne(selector, {fields: this._options.defaultFieldSelector});
+    if (!user && serviceData.email) user=Accounts.findUserByEmail(serviceData.email);
 
     // Check to see if the developer has a custom way to find the user outside
     // of the general selectors above.
@@ -1320,6 +1320,11 @@ export class AccountsServer extends AccountsCommon {
     // Before continuing, run user hook to see if we should continue
     if (this._beforeExternalLoginHook && !this._beforeExternalLoginHook(serviceName, serviceData, user)) {
       throw new Meteor.Error(403, "Login forbidden");
+    }
+
+    // Before continuing, we deny user creation if the route name was sign in
+    if ( options.noCreate && !user ) {
+      throw new Meteor.Error(403, "No matching user found");
     }
 
     // When creating a new user we pass through all options. When updating an

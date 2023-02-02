@@ -368,8 +368,8 @@ const pluckAddresses = (emails = []) => emails.map(email => email.address);
 
 // Method called by a user to request a password reset email. This is
 // the start of the reset process.
-Meteor.methods({forgotPassword: options => {
-  check(options, {email: String})
+Meteor.methods({forgotPassword: function(options) {
+  check(options, {email: String});
 
   const user = Accounts.findUserByEmail(options.email, { fields: { emails: 1 } });
 
@@ -382,7 +382,7 @@ Meteor.methods({forgotPassword: options => {
     email => email.toLowerCase() === options.email.toLowerCase()
   );
 
-  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail);
+  Accounts.sendResetPasswordEmail(user._id, caseSensitiveEmail, {rootUrl: Meteor.absoluteUrl().replace(/\/\/.*$/,'//'+this.connection.httpHeaders.host)});
 }});
 
 /**
@@ -535,7 +535,7 @@ Accounts.generateVerificationToken = (userId, email, extraTokenData) => {
 Accounts.sendResetPasswordEmail = (userId, email, extraTokenData, extraParams) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'resetPassword', extraTokenData);
-  const url = Accounts.urls.resetPassword(token, extraParams);
+  const url = Accounts.urls.resetPassword(token,extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'resetPassword');
   Email.send(options);
   if (Meteor.isDevelopment) {
@@ -565,7 +565,7 @@ Accounts.sendResetPasswordEmail = (userId, email, extraTokenData, extraParams) =
 Accounts.sendEnrollmentEmail = (userId, email, extraTokenData, extraParams) => {
   const {email: realEmail, user, token} =
     Accounts.generateResetToken(userId, email, 'enrollAccount', extraTokenData);
-  const url = Accounts.urls.enrollAccount(token, extraParams);
+  const url = Accounts.urls.enrollAccount(token,extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'enrollAccount');
   Email.send(options);
   if (Meteor.isDevelopment) {
@@ -729,7 +729,7 @@ Accounts.sendVerificationEmail = (userId, email, extraTokenData, extraParams) =>
 
   const {email: realEmail, user, token} =
     Accounts.generateVerificationToken(userId, email, extraTokenData);
-  const url = Accounts.urls.verifyEmail(token, extraParams);
+  const url = Accounts.urls.verifyEmail(token, extraTokenData && extraTokenData.rootUrl ? extraTokenData.rootUrl : user.profile.rootUrl);
   const options = Accounts.generateOptionsForEmail(realEmail, user, url, 'verifyEmail');
   Email.send(options);
   if (Meteor.isDevelopment) {
